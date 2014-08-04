@@ -54,9 +54,9 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
   def get_hosts
     if @hosts
         @hosts.split(',').map {|x| hp = x.split(':'); { host: hp[0], port: hp[1] || @port } }.compact
-     else
+    else
        [{host: @host, port: @port }]
-     end
+    end
   end
 
   def format(tag, time, record)
@@ -73,7 +73,7 @@ class Fluent::ElasticsearchOutput < Fluent::BufferedOutput
     chunk.msgpack_each do |tag, time, record|
       next unless record.is_a? Hash
       if @logstash_format
-        record.merge!({"@timestamp" => Time.at(time).to_datetime.to_s}) unless record.has_key?("@timestamp")
+        record.merge!({"@timestamp" => Time.at(time).to_datetime.iso8601(6)}) unless record.has_key?("@timestamp")
         if @utc_index
           target_index = "#{@logstash_prefix}-#{Time.at(time).getutc.strftime("#{@logstash_dateformat}")}"
         else
